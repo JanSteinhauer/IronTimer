@@ -10,11 +10,17 @@ import SwiftUI
 struct SetBadge: View {
     let reps: Int
     let weight: Double
+    var onTap: (() -> Void)? = nil
+
     var body: some View {
-        Text("\(reps)x@\(weight.clean)kg")
+        Text("\(reps)x\(weight.clean)kg")
             .font(.caption2)
-            .padding(.horizontal, 8).padding(.vertical, 6)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
             .background(.ultraThinMaterial, in: Capsule())
+            .onTapGesture {
+                onTap?()
+            }
     }
 }
 

@@ -13,6 +13,8 @@ struct WorkoutItemRow: View {
     @Query(sort: [SortDescriptor(\Workout.date, order: .reverse)]) private var allWorkouts: [Workout]
 
     @State private var showAddSet = false
+    @State private var editingSet: SetRecord? = nil
+    
     let item: WorkoutItem
 
     var totalReps: Int { item.sets.reduce(0) { $0 + $1.reps } }
@@ -34,13 +36,15 @@ struct WorkoutItemRow: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
                         ForEach(item.sets) { s in
-                            SetBadge(reps: s.reps, weight: s.weight)
+                            SetBadge(reps: s.reps, weight: s.weight) {
+                                editingSet = s
+                            }
                         }
                     }
                     .padding(.vertical, 2)
                 }
             }
-
+            
             HStack {
                 Button { showAddSet = true } label: {
                     Label("Add Set", systemImage: "plus")
@@ -71,6 +75,12 @@ struct WorkoutItemRow: View {
             }
             .presentationDetents([.height(260)])
         }
+        
+        .sheet(item: $editingSet) { s in
+                    EditSetSheet(set: s)
+                        .presentationDetents([.height(260)])
+                }
+        
     }
 
     /// Find the most recent set logged for this exercise across all workouts.
