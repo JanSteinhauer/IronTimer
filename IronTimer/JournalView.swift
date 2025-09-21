@@ -27,14 +27,27 @@ struct JournalView: View {
                                     .foregroundStyle(.secondary)
                             } else {
                                 ForEach(workout.items) { item in
-                                    HStack {
+                                    VStack(alignment: .leading, spacing: 4) {
                                         Text(item.exercise.name)
-                                        Spacer()
-                                        Text("\(totalReps(in: item)) reps")
-                                            .foregroundStyle(.secondary)
+                                            .font(.headline)
+
+                                        // Show sets as "reps x weight"
+                                        if item.sets.isEmpty {
+                                            Text("No sets")
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                        } else {
+                                            HStack {
+                                                ForEach(item.sets) { s in
+                                                    Text("\(s.reps)x\(clean(s.weight))")
+                                                        .font(.caption)
+                                                        .padding(6)
+                                                        .background(.ultraThinMaterial, in: Capsule())
+                                                }
+                                            }
+                                        }
                                     }
-                                    .accessibilityElement(children: .combine)
-                                    .accessibilityLabel("\(item.exercise.name), \(totalReps(in: item)) reps")
+                                    .padding(.vertical, 4)
                                 }
                             }
                         } header: {
@@ -47,15 +60,16 @@ struct JournalView: View {
         }
     }
 
-    // MARK: - Helpers
-    private func totalReps(in item: WorkoutItem) -> Int {
-        item.sets.reduce(0) { $0 + $1.reps }
-    }
-
     private func dateString(for date: Date) -> String {
         let df = DateFormatter()
         df.dateStyle = .medium
         df.timeStyle = .none
         return df.string(from: date)
+    }
+
+    private func clean(_ v: Double) -> String {
+        v.truncatingRemainder(dividingBy: 1) == 0
+            ? String(Int(v))
+            : String(format: "%.1f", v)
     }
 }
