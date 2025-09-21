@@ -9,8 +9,19 @@ import SwiftUI
 
 struct AddSetSheet: View {
     var onSave: (Int, Double) -> Void
-    @State private var reps: Int = 8
-    @State private var weight: Double = 20
+    var initialReps: Int?
+    var initialWeight: Double?
+
+    @State private var reps: Int
+    @State private var weight: Double
+
+    init(initialReps: Int? = nil, initialWeight: Double? = nil, onSave: @escaping (Int, Double) -> Void) {
+        self.onSave = onSave
+        self.initialReps = initialReps
+        self.initialWeight = initialWeight
+        _reps = State(initialValue: initialReps ?? 8)
+        _weight = State(initialValue: initialWeight ?? 20)
+    }
 
     var body: some View {
         NavigationStack {
@@ -26,6 +37,7 @@ struct AddSetSheet: View {
                         .multilineTextAlignment(.trailing)
                         .frame(width: 80)
                 }
+                
             }
             .navigationTitle("Add Set")
             .toolbar {
@@ -41,3 +53,5 @@ struct AddSetSheet: View {
 
     @Environment(\.dismiss) private var dismiss
 }
+
+

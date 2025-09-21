@@ -10,8 +10,9 @@ import SwiftData
 
 struct WorkoutItemRow: View {
     @Environment(\.modelContext) private var context
-    @State private var showAddSet = false
+    @Query(sort: [SortDescriptor(\Workout.date, order: .reverse)]) private var allWorkouts: [Workout]
 
+    @State private var showAddSet = false
     let item: WorkoutItem
 
     var totalReps: Int { item.sets.reduce(0) { $0 + $1.reps } }
@@ -20,8 +21,7 @@ struct WorkoutItemRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .firstTextBaseline) {
-                Text(item.exercise.name)
-                    .font(.headline)
+                Text(item.exercise.name).font(.headline)
                 Spacer()
                 if totalReps > 0 {
                     Text("\(totalReps) reps")
@@ -39,13 +39,10 @@ struct WorkoutItemRow: View {
                     }
                     .padding(.vertical, 2)
                 }
-                .contentMargins(.leading, 0, for: .scrollContent)
             }
 
             HStack {
-                Button {
-                    showAddSet = true
-                } label: {
+                Button { showAddSet = true } label: {
                     Label("Add Set", systemImage: "plus")
                 }
                 .buttonStyle(.borderedProminent)
@@ -62,7 +59,11 @@ struct WorkoutItemRow: View {
         }
         .padding(.vertical, 4)
         .sheet(isPresented: $showAddSet) {
-            AddSetSheet { reps, weight in
+            let suggestion = lastSetSuggestion(for: item.exercise)
+            AddSetSheet(
+                initialReps: suggestion?.reps,
+                initialWeight: suggestion?.weight
+            ) { reps, weight in
                 let set = SetRecord(reps: reps, weight: weight)
                 item.sets.append(set)
                 simpleHaptic()
@@ -70,5 +71,20 @@ struct WorkoutItemRow: View {
             }
             .presentationDetents([.height(260)])
         }
+    }
+
+    /// Find the most recent set logged for this exercise across all workouts.
+    private func lastSetSuggestion(for exercise: Exercise) -> (reps: Int, weight: Double)? {
+        // Search newest → oldest
+        for w in allWorkouts {
+            // Look for the same exercise in this workout
+            if let it = w.items.first(where: { $0.exercise.name.caseInsensitiveCompare(exercise.name) == .orderedSame }) {
+                // Prefer the latest by createdAt if available; else last in array
+                if let latest = it.sets.max(by: { $0.createdAt < $1.createdAt }) ?? it.sets.last {
+                    return (latest.reps, latest.weight)
+                }
+            }
+        }
+        return nil
     }
 }
