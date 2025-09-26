@@ -11,19 +11,17 @@ struct ContentView: View {
     var body: some View {
         TabView {
             TodayWorkoutView()
-                .tabItem {
-                    Label("Today", systemImage: "dumbbell")
-                }
+                .tabItem { Label("Today", systemImage: "dumbbell") }
 
             JournalView()
-                .tabItem {
-                    Label("Journal", systemImage: "list.bullet.rectangle")
-                }
+                .tabItem { Label("Journal", systemImage: "list.bullet.rectangle") }
 
             AnalysisView()
-                .tabItem {
-                    Label("Analysis", systemImage: "chart.xyaxis.line")
-                }
+                .tabItem { Label("Analysis", systemImage: "chart.xyaxis.line") }
+
+            RunsListView()
+                .tabItem { Label("Runs", systemImage: "figure.run") }
         }
-        .tint(.ironOrange)    }
+        .tint(.ironOrange)
+    }
 }

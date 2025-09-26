@@ -12,9 +12,11 @@ import SwiftData
 struct IronTimerApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .tint(.ironOrange)
+            ContentView().tint(.ironOrange)
         }
-        .modelContainer(for: [Exercise.self, Workout.self, WorkoutItem.self, SetRecord.self])
+        .modelContainer(for: [
+            Exercise.self, Workout.self, WorkoutItem.self, SetRecord.self,
+            Run.self, RunSplit.self, RoutePoint.self
+        ])
     }
 }
